@@ -16,7 +16,7 @@ st.set_page_config(
 
 # LOGIN CREDENTIALS SETTINGS
 USER_CREDENTIALS = {
-    "Dr.Afzal": "global123"  # Yahan Username aur Password change kar sakte hain
+    "admin": "silver123"  # Yahan se aap Password change kar sakte hain
 }
 
 # Custom CSS for Senior-Friendly UI & Silver Line Homoeopathic Theme
@@ -65,7 +65,9 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
+# ---------------------------------------------------------
 # LOGIN SYSTEM FUNCTION
+# ---------------------------------------------------------
 if "authenticated" not in st.session_state:
     st.session_state.authenticated = False
 
@@ -95,7 +97,7 @@ if not st.session_state.authenticated:
     check_login()
     st.stop()
 
-# Logout Option in Sidebar
+# Logout Option in Sidebar Bottom
 if st.sidebar.button("🔒 Logout"):
     st.session_state.authenticated = False
     st.rerun()
@@ -161,13 +163,14 @@ def init_db():
 
 init_db()
 
-
-# Header Display with Logo
+# ---------------------------------------------------------
+# MAIN HEADER WITH LOGO
+# ---------------------------------------------------------
 col_logo, col_title = st.columns([1, 4])
 
 with col_logo:
     try:
-        st.image("logo.png", width=110)
+        st.image("logo.png", width=120)
     except:
         st.write("🌿")
 
@@ -180,8 +183,13 @@ with col_title:
     """, unsafe_allow_html=True)
 
 # ---------------------------------------------------------
-# MAIN NAVIGATION MENU
+# MAIN NAVIGATION MENU & SIDEBAR LOGO
 # ---------------------------------------------------------
+try:
+    st.sidebar.image("logo.png", use_container_width=True)
+except:
+    st.sidebar.write("🌿 **SILVER LINE HOMOEOPATHIC**")
+
 st.sidebar.title("📌 Main Menu")
 menu = [
     "📦 Inventory Management",
