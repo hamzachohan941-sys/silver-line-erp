@@ -9,7 +9,7 @@ from datetime import datetime, date
 # ---------------------------------------------------------
 st.set_page_config(
     page_title="Silver Line Homoeopathic ERP",
-    page_icon="🌿",
+    page_icon="logo.png",  # Yahan 🌿 ki jaga logo.png kar diya hai
     layout="wide",
     initial_sidebar_state="expanded"
 )
