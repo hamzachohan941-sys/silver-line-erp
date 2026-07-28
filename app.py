@@ -14,6 +14,11 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
+# LOGIN CREDENTIALS SETTINGS
+USER_CREDENTIALS = {
+    "admin": "global123"  # Yahan Username aur Password change kar sakte hain
+}
+
 # Custom CSS for Senior-Friendly UI & Silver Line Homoeopathic Theme
 st.markdown("""
     <style>
@@ -59,6 +64,41 @@ st.markdown("""
     }
     </style>
 """, unsafe_allow_html=True)
+
+# LOGIN SYSTEM FUNCTION
+if "authenticated" not in st.session_state:
+    st.session_state.authenticated = False
+
+def check_login():
+    st.markdown("""
+        <div class="brand-header">
+            <h1>SILVER LINE HOMOEOPATHIC</h1>
+            <p>System Security Access Control</p>
+        </div>
+    """, unsafe_allow_html=True)
+    
+    col1, col2, col3 = st.columns([1, 2, 1])
+    with col2:
+        st.subheader("🔐 Software Login")
+        username_input = st.text_input("Username")
+        password_input = st.text_input("Password", type="password")
+        
+        if st.button("Login"):
+            if username_input in USER_CREDENTIALS and USER_CREDENTIALS[username_input] == password_input:
+                st.session_state.authenticated = True
+                st.success("✅ Access Granted!")
+                st.rerun()
+            else:
+                st.error("❌ Invalid Username or Password")
+
+if not st.session_state.authenticated:
+    check_login()
+    st.stop()
+
+# Logout Option in Sidebar
+if st.sidebar.button("🔒 Logout"):
+    st.session_state.authenticated = False
+    st.rerun()
 
 # ---------------------------------------------------------
 # DATABASE INITIALIZATION
@@ -111,7 +151,6 @@ def init_db():
     c.execute('''CREATE TABLE IF NOT EXISTS categories (
                     id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT UNIQUE)''')
     
-    # Default Product Categories
     default_cats = ["Ampoules", "Balm", "Capsules", "Drops", "Malt, Jelly", 
                     "Ointment", "Oil", "Oral Liquid", "Patches", "Syrup", 
                     "Supplements", "Sachets", "Tablet", "Cream", "Mother Tincture"]
@@ -159,7 +198,6 @@ if choice == "📦 Inventory Management":
                 p_buy = st.number_input("B) Buy Price (PKR)", min_value=0.0)
                 p_mrp = st.number_input("C) MRP (Retail Price)", min_value=0.0)
                 
-                # Fetch Categories Dynamically
                 cats_df = pd.read_sql_query("SELECT name FROM categories", conn)
                 p_type = st.selectbox("D) Product Type", cats_df['name'].tolist() if not cats_df.empty else ["General"])
             
@@ -211,7 +249,6 @@ if choice == "📦 Inventory Management":
 elif choice == "🛒 Sales & Billing (POS)":
     st.header("🛒 Point of Sale & Billing System")
     
-    # Header Settings
     with st.expander("⚙️ Bill Customization & Header Settings"):
         bill_title = st.text_input("Bill Heading", value="SILVER LINE HOMOEOPATHIC")
         bill_warranty = st.text_area("Warranty & Terms", value="Warranty valid as per Silver Line Homoeopathic terms. Goods once sold are not returnable after 7 days.")
@@ -224,7 +261,6 @@ elif choice == "🛒 Sales & Billing (POS)":
         cust_phone = st.text_input("Customer Phone")
         cust_address = st.text_input("Customer Address")
         
-        # Staff/Salesman Selection
         staff_df = pd.read_sql_query("SELECT id, name FROM staff", conn)
         salesman_id = st.selectbox("Salesman", options=staff_df['id'].tolist(), format_func=lambda x: staff_df[staff_df['id']==x]['name'].values[0] if not staff_df.empty else "Default") if not staff_df.empty else None
 
@@ -237,7 +273,6 @@ elif choice == "🛒 Sales & Billing (POS)":
             
             p_detail = prod_df[prod_df['id'] == p_selected].iloc[0]
             
-            # Alerts
             if pd.to_datetime(p_detail['exp_date']) <= pd.to_datetime('today') + pd.Timedelta(days=90):
                 st.warning(f"⚠️ NEAR-EXPIRY ALERT: Expiry date is {p_detail['exp_date']}")
             
@@ -246,7 +281,6 @@ elif choice == "🛒 Sales & Billing (POS)":
             disc = q_cols[1].number_input("Discount (%)", min_value=0.0, max_value=100.0, value=0.0)
             gst = q_cols[2].number_input("GST/HSN (%)", min_value=0.0, value=0.0)
             
-            # Rate & Margin Visibility
             cost_p = p_detail['buy_price']
             sell_p = p_detail['mrp']
             margin = ((sell_p - cost_p) / sell_p * 100) if sell_p > 0 else 0
@@ -262,7 +296,6 @@ elif choice == "🛒 Sales & Billing (POS)":
                 })
                 st.success("Added to Cart!")
 
-    # Cart Display & Invoice Checkout
     if 'cart' in st.session_state and len(st.session_state.cart) > 0:
         st.write("---")
         st.subheader("🛒 Current Invoice Summary")
@@ -276,7 +309,6 @@ elif choice == "🛒 Sales & Billing (POS)":
         st.markdown(f"### 💵 Final Bill Amount: **PKR {final_bill:.2f}**")
         
         if st.button("🖨️ Complete Sale & Print Bill"):
-            # Save Sale
             today_str = str(date.today())
             c.execute('''INSERT INTO sales (date, customer_id, salesman_id, total_amount, discount, net_amount, tax_hsn, warranty_note)
                          VALUES (?,?,?,?,?,?,?,?)''', (today_str, 0, salesman_id, grand_total, extra_cash_disc, final_bill, 0, bill_warranty))
@@ -355,8 +387,7 @@ elif choice == "📊 Financials & P&L":
         total_sales = pd.read_sql_query("SELECT SUM(net_amount) as val FROM sales", conn)['val'].iloc[0] or 0.0
         total_expenses = pd.read_sql_query("SELECT SUM(amount) as val FROM expenses", conn)['val'].iloc[0] or 0.0
         
-        # Calculate Cost of Goods Sold (Approx estimated)
-        cogs = total_sales * 0.6  # Default baseline margin estimation
+        cogs = total_sales * 0.6
         net_profit = total_sales - (cogs + total_expenses)
         
         col1, col2, col3, col4 = st.columns(4)
