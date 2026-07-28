@@ -16,7 +16,7 @@ st.set_page_config(
 
 # LOGIN CREDENTIALS SETTINGS
 USER_CREDENTIALS = {
-    "admin": "silver123"  # Yahan se aap Password change kar sakte hain
+    "Dr.Afzal": "global123"  # Yahan se aap Password change kar sakte hain
 }
 
 # Custom CSS for Senior-Friendly UI & Silver Line Homoeopathic Theme
