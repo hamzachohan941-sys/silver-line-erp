@@ -161,13 +161,23 @@ def init_db():
 
 init_db()
 
-# Header Display
-st.markdown("""
-    <div class="brand-header">
-        <h1>SILVER LINE HOMOEOPATHIC</h1>
-        <p>Advanced Management & Enterprise Resource Planning (ERP)</p>
-    </div>
-""", unsafe_allow_html=True)
+
+# Header Display with Logo
+col_logo, col_title = st.columns([1, 4])
+
+with col_logo:
+    try:
+        st.image("logo.png", width=110)
+    except:
+        st.write("🌿")
+
+with col_title:
+    st.markdown("""
+        <div class="brand-header" style="text-align: left; padding: 15px 25px;">
+            <h1 style="margin: 0; font-size: 28px;">SILVER LINE HOMOEOPATHIC</h1>
+            <p style="margin: 0; opacity: 0.9;">Advanced Management & Enterprise Resource Planning (ERP)</p>
+        </div>
+    """, unsafe_allow_html=True)
 
 # ---------------------------------------------------------
 # MAIN NAVIGATION MENU
